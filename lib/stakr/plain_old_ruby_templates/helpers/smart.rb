@@ -258,7 +258,7 @@ module Stakr #:nodoc:
                   if (error_handling.blank? || error_handling.to_s != 'hide') && errors.present? # check for blank because blank cannot be converted in symbol
                     div :class => { :error => true }, :join => :br, :optional => true do
                       errors.each do |error|
-                        text "#{human_attribute_name} #{error}"
+                        text error
                       end
                     end
                   elsif example
