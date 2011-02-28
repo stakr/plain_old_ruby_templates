@@ -107,8 +107,15 @@ module Stakr #:nodoc:
               o[:html] ||= {}; o[:html].update(o.except(:url, :html)) # moves all top-level attributes into the :html sub-hash
               o[:url] = url_for(:format => 'html') unless o[:url]
               __in_plain_old_ruby_template = true
-              form_for(*(args << o)) do |f|
-                with_form_builder(f) { concat c.to_s(f) }
+              if request.xhr?
+                o.update(:update => 'facebox_content')
+                remote_form_for(*(args << o)) do |f|
+                  with_form_builder(f) { concat c.to_s(f) }
+                end
+              else
+                form_for(*(args << o)) do |f|
+                  with_form_builder(f) { concat c.to_s(f) }
+                end
               end
             end
           end

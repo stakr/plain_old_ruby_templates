@@ -29,7 +29,7 @@ module Stakr #:nodoc:
           result = ''
           result << form_tag(options.delete(:url) || {}, options.delete(:html) || {})
           result << fields_for(object_name, *(args << options), &proc)
-          result << '</form>'
+          result << '</form>'.html_safe
           
           if block_called_from_erb?(proc)
             concat result
@@ -65,6 +65,41 @@ module Stakr #:nodoc:
           end
           
         end
+        
+        # Fixes the buggy implementation of remote_form_for because it always pushes
+        # the form tag into the output buffer and returns the output buffer
+        # instead of the form tag.
+        def remote_form_for(record_or_name_or_array, *args, &proc)
+          options = args.extract_options!
+          
+          case record_or_name_or_array
+          when String, Symbol
+            object_name = record_or_name_or_array
+          when Array
+            object = record_or_name_or_array.last
+            object_name = ActionController::RecordIdentifier.singular_class_name(object)
+            apply_form_for_options!(record_or_name_or_array, options)
+            args.unshift object
+          else
+            object      = record_or_name_or_array
+            object_name = ActionController::RecordIdentifier.singular_class_name(record_or_name_or_array)
+            apply_form_for_options!(object, options)
+            args.unshift object
+          end
+          
+          result = ''
+          result << form_remote_tag(options)
+          result << fields_for(object_name, *(args << options), &proc)
+          result << '</form>'.html_safe
+          
+          if block_called_from_erb?(proc)
+            concat result
+          else
+            result
+          end
+          
+        end
+        alias_method :form_remote_for, :remote_form_for
         
       end
     end
