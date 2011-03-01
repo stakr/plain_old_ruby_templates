@@ -20,7 +20,7 @@ module Stakr #:nodoc:
         def a(content_or_options_with_block = nil, options = nil, &block)
           smart_content_tag_wrapper(content_or_options_with_block, options, block) do |c, o|
             if remote = o.delete(:remote)
-              link_to_remote(c, remote, o)
+              link_to_remote(c, { :url => o[:href] }, o)
             else
               link_to(c, o.delete(:href), o.to_hash)
             end
@@ -105,10 +105,9 @@ module Stakr #:nodoc:
             raise ArgumentError, "Missing block" unless block_given?
             smart_content_tag_wrapper(options, nil, block) do |c, o|
               o[:html] ||= {}; o[:html].update(o.except(:url, :html)) # moves all top-level attributes into the :html sub-hash
-              o[:url] = url_for(:format => 'html') unless o[:url]
+              o[:url] = url_for(:format => request.xhr? ? 'js' : 'html') unless o[:url]
               __in_plain_old_ruby_template = true
               if request.xhr?
-                o.update(:update => 'facebox_content')
                 remote_form_for(*(args << o)) do |f|
                   with_form_builder(f) { concat c.to_s(f) }
                 end
