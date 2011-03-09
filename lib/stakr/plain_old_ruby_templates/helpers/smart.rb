@@ -401,6 +401,16 @@ module Stakr #:nodoc:
         end
         
         # TODO
+        def file(method, options = {})
+          # delegate to file_field method
+          group_options = options.delete(:group) || {}
+          __in_plain_old_ruby_template = true
+          group method, group_options do
+            concat self.smart_form_builder.file_field(method, options.to_hash)
+          end
+        end
+        
+        # TODO
         def hidden(method, options = {})
           # delegate to hidden_field method
           __in_plain_old_ruby_template = true
