@@ -104,10 +104,11 @@ module Stakr #:nodoc:
           else # delegate to form_for method
             raise ArgumentError, "Missing block" unless block_given?
             smart_content_tag_wrapper(options, nil, block) do |c, o|
+              xhr = o.delete(:xhr)
               o[:html] ||= {}; o[:html].update(o.except(:url, :html)) # moves all top-level attributes into the :html sub-hash
-              o[:url] = url_for(:format => request.xhr? ? 'js' : 'html') unless o[:url]
+              o[:url] = url_for(:format => xhr ? 'js' : 'html') unless o[:url]
               __in_plain_old_ruby_template = true
-              if request.xhr?
+              if xhr
                 remote_form_for(*(args << o)) do |f|
                   with_form_builder(f) { concat c.to_s(f) }
                 end
@@ -404,9 +405,11 @@ module Stakr #:nodoc:
         def file(method, options = {})
           # delegate to file_field method
           group_options = options.delete(:group) || {}
+          spinner = options.delete(:spinner)
           __in_plain_old_ruby_template = true
           group method, group_options do
             concat self.smart_form_builder.file_field(method, options.to_hash)
+            img :src => spinner, :class => { :spinner => true }, :style => { :display => :none } if spinner
           end
         end
         
