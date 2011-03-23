@@ -408,8 +408,10 @@ module Stakr #:nodoc:
           spinner = options.delete(:spinner)
           __in_plain_old_ruby_template = true
           group method, group_options do
-            concat self.smart_form_builder.file_field(method, options.to_hash)
-            img :src => spinner, :class => { :spinner => true }, :style => { :display => :none } if spinner
+            none :join => ' ' do
+              concat self.smart_form_builder.file_field(method, options.to_hash)
+              img :src => spinner, :class => { :spinner => true }, :style => { :display => :none } if spinner
+            end
           end
         end
         
