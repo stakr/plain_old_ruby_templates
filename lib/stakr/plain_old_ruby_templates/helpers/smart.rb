@@ -307,14 +307,23 @@ module Stakr #:nodoc:
         # buffer.
         def smart_content_tag(name, content_or_options_with_block = nil, options = nil, &block)
           smart_content_tag_wrapper(content_or_options_with_block, options, block, name.nil?) do |c, o|
-            if conditions = o.delete(:cc_swap)
-              result = []
-              result << conditional_comments_wrapper(tag(name, o, true), :rcc => conditions.first)
-              result << conditional_comments_wrapper(tag(:div, o.merge(:class => extend_class_attribute(o[:class], name)).to_hash, true), :cc => conditions.last)
-              result << c
-              result << conditional_comments_wrapper('</div>', :cc => conditions.last)
-              result << conditional_comments_wrapper("</#{name}>", :rcc => conditions.first)
-              result.join('')
+            if conditions = o.delete(:ie_classes)
+              [].tap { |result|
+                result << conditional_comments_wrapper(tag(name, o.merge(:class => extend_class_attribute(o[:class], 'ie6')), true), :cc => 'lt IE 7')
+                result << conditional_comments_wrapper(tag(name, o.merge(:class => extend_class_attribute(o[:class], 'ie7')), true), :cc => 'IE 7')
+                result << conditional_comments_wrapper(tag(name, o.merge(:class => extend_class_attribute(o[:class], 'ie8')), true), :cc => 'IE 8')
+                result << conditional_comments_wrapper(tag(name, o, true), :rcc => '(gte IE 9)|!(IE)')
+                result << c
+                result << "</#{name}>"
+              }.join('')
+            elsif conditions = o.delete(:cc_swap)
+              [].tap { |result|
+                result << conditional_comments_wrapper(tag(name, o, true), :rcc => conditions.first)
+                result << conditional_comments_wrapper(tag(:div, o.merge(:class => extend_class_attribute(o[:class], name)).to_hash, true), :cc => conditions.last)
+                result << c
+                result << conditional_comments_wrapper('</div>', :cc => conditions.last)
+                result << conditional_comments_wrapper("</#{name}>", :rcc => conditions.first)
+              }.join('')
             else
               content_tag(name, c, o.to_hash)
             end
