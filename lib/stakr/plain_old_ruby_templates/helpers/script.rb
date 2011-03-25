@@ -12,7 +12,11 @@ module Stakr #:nodoc:
             options = script_or_options.with_indifferent_access
             concat javascript_include_tag(options[:src])
           else
-            concat javascript_tag(script_or_options.split($/).map { |l| l.strip }.join($/))
+            if script_or_options.include?("\n")
+              concat javascript_tag(script_or_options.split($/).map { |l| l.strip }.join($/))
+            else
+              concat content_tag(:script, "/*<![CDATA[*/#{script_or_options}/*]]>*/", :type => Mime::JS)
+            end
           end
         end
         
