@@ -235,7 +235,8 @@ module Stakr #:nodoc:
               example         = options.delete(:example)
               required        = options.delete(:required)
               error_handling  = options.delete(:errors)
-              errors          = Array(object.errors.on(method))
+              errors_of       = options.delete(:errors_of)
+              errors          = Array(object.errors.on(errors_of || method))
               
               klass = extend_class_attribute(options[:class], :group)
               klass = extend_class_attribute(klass, :fieldWithErrors) if errors.present?
@@ -261,7 +262,7 @@ module Stakr #:nodoc:
                   # field(s)
                   yield
                   
-                  # errors
+                  # errors or example
                   if (error_handling.blank? || error_handling.to_s != 'hide') && errors.present? # check for blank because blank cannot be converted in symbol
                     div :class => { :error => true }, :join => :br, :optional => true do
                       errors.each do |error|
