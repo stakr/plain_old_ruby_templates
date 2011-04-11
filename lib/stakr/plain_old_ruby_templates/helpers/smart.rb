@@ -426,11 +426,19 @@ module Stakr #:nodoc:
         end
         
         # TODO
-        def hidden(method, options = {})
-          # delegate to hidden_field method
-          __in_plain_old_ruby_template = true
-          smart_simple_tag_wrapper(options) do |o|
-            self.smart_form_builder.hidden_field(method, o.to_hash)
+        def hidden(*args)
+          options = args.extract_options!
+          if args.empty? # self-made input tag
+            smart_simple_tag_wrapper(options) do |o|
+              tag(:input, o.to_hash)
+            end
+          else
+            # delegate to hidden_field method
+            method = args.shift
+            __in_plain_old_ruby_template = true
+            smart_simple_tag_wrapper(options) do |o|
+              self.smart_form_builder.hidden_field(method, o.to_hash)
+            end
           end
         end
         
