@@ -109,8 +109,15 @@ module Stakr #:nodoc:
               o[:url] = url_for(:format => xhr ? 'js' : 'html') unless o[:url]
               __in_plain_old_ruby_template = true
               if xhr
-                remote_form_for(*(args << o)) do |f|
-                  with_form_builder(f) { concat c.to_s(f) }
+                if o[:multipart]
+                  o[:html][:'data-jquery-form'] = true
+                  form_for(*(args << o)) do |f|
+                    with_form_builder(f) { concat c.to_s(f) }
+                  end
+                else
+                  remote_form_for(*(args << o)) do |f|
+                    with_form_builder(f) { concat c.to_s(f) }
+                  end
                 end
               else
                 form_for(*(args << o)) do |f|
